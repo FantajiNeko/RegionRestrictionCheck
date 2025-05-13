@@ -492,7 +492,7 @@ get_ip_info() {
     LOCAL_IP_ASTERISK=''
     LOCAL_ISP=''
     local local_ip=$(curl ${CURL_DEFAULT_OPTS} -s https://api64.ipify.org --user-agent "${UA_BROWSER}")
-    local get_local_isp=$(curl ${CURL_DEFAULT_OPTS} -s "https://api.ip.sb/geoip/${local_ip}" -H 'accept: */*;q=0.8,application/signed-exchange;v=b3;q=0.7' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: document' -H 'sec-fetch-mode: navigate' -H 'sec-fetch-site: none' -H 'sec-fetch-user: ?1' -H 'upgrade-insecure-requests: 1' --user-agent "${UA_BROWSER}")
+    local get_local_isp=$(curl ${CURL_DEFAULT_OPTS} -s "https://ifconfig.co/json?ip=${local_ip}" -H 'accept: */*;q=0.8,application/signed-exchange;v=b3;q=0.7' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: document' -H 'sec-fetch-mode: navigate' -H 'sec-fetch-site: none' -H 'sec-fetch-user: ?1' -H 'upgrade-insecure-requests: 1' --user-agent "${UA_BROWSER}")
 
     if [ -z "$local_ip" ]; then
         echo -e "${Font_Red}Failed to Query IP Address.${Font_Suffix}"
@@ -510,7 +510,7 @@ get_ip_info() {
         LOCAL_IP_ASTERISK=$(awk -F":" '{print $1":"$2":"$3":*:*"}' <<<"${local_ip}")
     fi
 
-    LOCAL_ISP=$(echo "$get_local_isp" | grep 'organization' | cut -f4 -d '"')
+    LOCAL_ISP=$(echo "$get_local_isp" | grep 'asn_org' | cut -f4 -d '"')
 }
 
 show_region() {
@@ -2757,13 +2757,13 @@ function RegionTest_NetflixCDN() {
     fi
 
     if ! validate_intranet "$cdnIP"; then
-        local tmpresult1=$(curl ${CURL_DEFAULT_OPTS} -s "https://api.ip.sb/geoip/${cdnIP}" -H 'accept: */*;q=0.8,application/signed-exchange;v=b3;q=0.7' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: document' -H 'sec-fetch-mode: navigate' -H 'sec-fetch-site: none' -H 'sec-fetch-user: ?1' -H 'upgrade-insecure-requests: 1' --user-agent "${UA_BROWSER}")
+        local tmpresult1=$(curl ${CURL_DEFAULT_OPTS} -s "https://ifconfig.co/json?ip=${cdnIP}" -H 'accept: */*;q=0.8,application/signed-exchange;v=b3;q=0.7' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: document' -H 'sec-fetch-mode: navigate' -H 'sec-fetch-site: none' -H 'sec-fetch-user: ?1' -H 'upgrade-insecure-requests: 1' --user-agent "${UA_BROWSER}")
         if [ -z "$tmpresult1" ]; then
             echo -n -e "\r Netflix Preferred CDN:\t\t\t${Font_Red}Failed (Network Connection 1)${Font_Suffix}\n"
             return
         fi
 
-        local cdnISP=$(echo "$tmpresult1" | grep -woP '"isp"\s{0,}:\s{0,}"\K[^"]+')
+        local cdnISP=$(echo "$tmpresult1" | grep -woP '"asn_org"\s{0,}:\s{0,}"\K[^"]+')
         if [ -z "$cdnISP" ]; then
             echo -n -e "\r Netflix Preferred CDN:\t\t\t${Font_Red}Failed (Error: No ISP Info Found)${Font_Suffix}\n"
             return
