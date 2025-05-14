@@ -5501,6 +5501,7 @@ function inputOptions() {
             echo -e "${Font_SkyBlue}Input Number  [88]: [ Instagram Music ]${Font_Suffix}"
             echo -e "${Font_SkyBlue}Input Number [99]: [ Sport Platforms ]${Font_Suffix}"
             echo -e "${Font_SkyBlue}Input Number [66]: [ All Platfroms ]${Font_Suffix}"
+            echo -e "${Font_SkyBlue}Input Number [66]: [ Multination + TW HK JP ]${Font_Suffix}"
             read -p "Please Input the Correct Number or Press ENTER:" num
         else
             echo -e "${Font_Blue}请选择检测项目，直接按回车将进行全区域检测${Font_Suffix}"
@@ -5519,6 +5520,7 @@ function inputOptions() {
             echo -e "${Font_SkyBlue}输入数字 [88]: [   Instagram音乐   ]检测${Font_Suffix}"
             echo -e "${Font_SkyBlue}输入数字 [99]: [   体育直播平台    ]检测${Font_Suffix}"
             echo -e "${Font_SkyBlue}输入数字 [66]: [     全部平台      ]检测${Font_Suffix}"
+            echo -e "${Font_SkyBlue}输入数字 [55]: [  跨国平台+台港日  ]检测${Font_Suffix}"
             echo -e "${Font_Purple}输入数字 [69]: [   广告推广投放    ]咨询${Font_Suffix}"
             read -p "请输入正确数字或直接按回车:" num
         fi
@@ -5919,6 +5921,23 @@ function runScript() {
         fi
         return
     fi
+    if [ "$REGION_ID" -eq 55 ]; then
+        checkIPConn 4
+        if [ "$USE_IPV4" -eq 1 ]; then
+            Global_UnlockTest
+            TW_UnlockTest
+            HK_UnlockTest
+            JP_UnlockTest
+        fi
+        checkIPConn 6
+        if [ "$USE_IPV6" -eq 1 ]; then
+            Global_UnlockTest
+            TW_UnlockTest
+            HK_UnlockTest
+            JP_UnlockTest
+        fi
+        return
+    fi
     if [ "$REGION_ID" -eq 69 ]; then
         echo ''
         echo ''
@@ -5998,4 +6017,4 @@ clear
 
 runScript
 
-showGoodbye
+#showGoodbye
