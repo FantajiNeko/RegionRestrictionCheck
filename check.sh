@@ -5720,7 +5720,7 @@ function checkIPConn() {
 }
 
 function runScript() {
-    showScriptTitle
+    #showScriptTitle
 
     USE_IPV4=0
     USE_IPV6=0
