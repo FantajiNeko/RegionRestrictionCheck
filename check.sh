@@ -170,7 +170,7 @@ validate_region_id() {
         exit 1
     fi
     local regionid="$1"
-    local result=$(echo "$regionid" | grep -E '^[0-9]$|^1[0-1]$|^99$|^88$|^66$')
+    local result=$(echo "$regionid" | grep -E '^[0-9]$|^1[0-1]$|^99$|^88$|^66$|^55$')
     if [ -z "$result" ]; then
         return 1
     fi
