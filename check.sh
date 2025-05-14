@@ -5989,11 +5989,11 @@ process "$@"
 
 clear
 
-count_run_times
+#count_run_times
 
-showSupportOS
+#showSupportOS
 
-showScriptTitle
+#showScriptTitle
 
 if [ -z "$REGION_ID" ]; then
     inputOptions
