@@ -2,9 +2,9 @@
 
 VER='1.0.0'
 
-UA_BROWSER="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
-UA_SEC_CH_UA='"Google Chrome";v="136", "Chromium";v="136", "Not.A/Brand";v="99"'
-UA_ANDROID="Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36"
+UA_BROWSER="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+UA_SEC_CH_UA='"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"'
+UA_ANDROID="Mozilla/5.0 (Linux; Android 10; Pixel 4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36"
 
 color_print() {
     Font_Black="\033[30m"
@@ -815,7 +815,6 @@ function MediaUnlockTest_Netflix() {
         echo -n -e "\r Netflix:\t\t\t\t${Font_Yellow}Originals Only${Font_Suffix}\n"
         return
     fi
-<<<<<<< HEAD
     if [ "$result1" == '403' ] || [ "$result2" == '403' ]; then
         echo -n -e "\r Netflix:\t\t\t\t${Font_Red}No${Font_Suffix}\n"
         return
@@ -823,11 +822,6 @@ function MediaUnlockTest_Netflix() {
     if [ "$result1" == '200' ] || [ "$result2" == '200' ]; then
         local tmpresult=$(curl ${CURL_DEFAULT_OPTS} -sL 'https://www.netflix.com/' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-site: none' -H 'sec-fetch-mode: navigate' -H 'sec-fetch-user: ?1' -H 'sec-fetch-dest: document' --user-agent "${UA_BROWSER}")
         local region=$(echo "$tmpresult" | grep -oP '"id":"\K[^"]+' | grep -E '^[A-Z]{2}$' | head -n 1)
-=======
-
-    if [ -z "${result1}" ] || [ -z "${result2}" ]; then
-        local region=$(echo "$tmpresult1" | grep -o 'data-country="[A-Z]*"' | sed 's/.*="\([A-Z]*\)"/\1/' | head -n1)
->>>>>>> pr_147
         echo -n -e "\r Netflix:\t\t\t\t${Font_Green}Yes (Region: ${region})${Font_Suffix}\n"
         return
     fi
