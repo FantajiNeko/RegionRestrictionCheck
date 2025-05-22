@@ -510,7 +510,7 @@ get_ip_info() {
         LOCAL_IP_ASTERISK=$(awk -F":" '{print $1":"$2":"$3":*:*"}' <<<"${local_ip}")
     fi
 
-    LOCAL_ISP=$(echo "$get_local_isp" | grep 'organization' | cut -f4 -d '"')
+    LOCAL_ISP=$(echo "$get_local_isp" | grep -woP '"organization"\s{0,}:\s{0,}"\K[^"]+')
 }
 
 show_region() {
