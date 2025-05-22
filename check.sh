@@ -2686,6 +2686,7 @@ function GameTest_ProjectSekai() {
     esac
 }
 
+#2025年1月30日をもってサービスを終了し
 function GameTest_KonosubaFD() {
     if [ "${USE_IPV6}" == 1 ]; then
         echo -n -e "\r Konosuba Fantastic Days:\t\t${Font_Red}IPv6 Is Not Currently Supported${Font_Suffix}\n"
@@ -5296,7 +5297,7 @@ function JP_UnlockTest() {
     local result=$(
         GameTest_Kancolle &
         GameTest_UMAJP &
-        GameTest_KonosubaFD &
+        #GameTest_KonosubaFD &
         GameTest_PCRJP &
         GameTest_ProjectSekai &
     )
