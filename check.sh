@@ -5302,7 +5302,8 @@ function JP_UnlockTest() {
         GameTest_ProjectSekai &
     )
     wait
-    local array=("Kancolle Japan:" "Pretty Derby Japan:" "Konosuba Fantastic Days:" "Princess Connect Re:Dive Japan:" "Project Sekai: Colorful Stage:")
+    #local array=("Kancolle Japan:" "Pretty Derby Japan:" "Konosuba Fantastic Days:" "Princess Connect Re:Dive Japan:" "Project Sekai: Colorful Stage:")
+    local array=("Kancolle Japan:" "Pretty Derby Japan:" "Princess Connect Re:Dive Japan:" "Project Sekai: Colorful Stage:")
     echo_result ${result} ${array}
     show_region Music
     local result=$(
