@@ -1130,73 +1130,20 @@ function MediaUnlockTest_wowow() {
 }
 
 function MediaUnlockTest_TVer() {
-    if [ "${USE_IPV6}" == 1 ]; then
-        echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}IPv6 Is Not Currently Supported${Font_Suffix}\n"
+    local tmpresult=$(curl ${CURL_DEFAULT_OPTS} --user-agent "${UA_BROWSER}" -fsLI -X GET --write-out %{http_code} --output /dev/null "https://playback.api.streaks.jp/v1/projects/tver-simul-ntv/medias/ref:simul-ntv" -H 'x-streaks-api-key: ntv'  2>&1)
+    
+    if [[ "$tmpresult" == "200" ]]; then
+        echo -n -e "\r TVer:\t\t\t\t\t${Font_Green}Yes${Font_Suffix}\n"
         return
-    fi
-
-    local tmpresult=$(curl ${CURL_DEFAULT_OPTS} -s 'https://platform-api.tver.jp/v2/api/platform_users/browser/create' -H 'content-type: application/x-www-form-urlencoded' -H 'origin: https://s.tver.jp' -H 'referer: https://s.tver.jp/' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: empty' -H 'sec-fetch-mode: cors' -H 'sec-fetch-site: same-site' --data-raw 'device_type=pc' --user-agent "${UA_BROWSER}")
-    if [ -z "$tmpresult" ]; then
+    elif [[ "$tmpresult" == "403" ]]; then
+        echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}No${Font_Suffix}\n"
+        return
+    elif [[ "$tmpresult" == "000" ]]; then
         echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}Failed (Network Connection)${Font_Suffix}\n"
         return
-    fi
-    # 先取 UID 和 TOKEN
-    local platformUid=$(echo "$tmpresult" | grep -woP '"platform_uid"\s{0,}:\s{0,}"\K[^"]+')
-    local platformToken=$(echo "$tmpresult" | grep -woP '"platform_token"\s{0,}:\s{0,}"\K[^"]+')
-    # 根据 UID 和 TOKEN 取得当前正在播放的剧集
-    local tmpresult2=$(curl ${CURL_DEFAULT_OPTS} -s "https://platform-api.tver.jp/service/api/v1/callHome?platform_uid=${platformUid}&platform_token=${platformToken}&require_data=mylist%2Cresume%2Clater" -H 'origin: https://tver.jp' -H 'referer: https://tver.jp/' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: empty' -H 'sec-fetch-mode: cors' -H 'sec-fetch-site: same-site' -H 'x-tver-platform-type: web' --user-agent "${UA_BROWSER}")
-    if [ -z "$tmpresult2" ]; then
-        echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}Failed (Network Connection 1)${Font_Suffix}\n"
-        return
-    fi
-    # 返回结果取新电视剧第一个值
-    # echo "$tmpresult2" | jq  -r '.result.components.[] | select(.componentID | contains("newer-drama")) | limit(1; .contents.[].content.id)'
-    local episodeId=$(echo "$tmpresult2" | sed -E 's/.*"variety.catchup.recomend([.]{0,})"//' | sed 's/"componentID".*//' | sed 's/"id"/_TAG_/;s/.*_TAG_//' | cut -f2 -d'"' | grep -E '[a-z0-9]{10}')
-    if [ -z "$episodeId" ]; then
-        echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}Failed (Error: PAGE ERROR)${Font_Suffix}\n"
-        return
-    fi
-
-    # 取得该剧集信息
-    local tmpresult3=$(curl ${CURL_DEFAULT_OPTS} -s "https://statics.tver.jp/content/episode/${episodeId}.json" -H 'origin: https://tver.jp' -H 'referer: https://tver.jp/' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: empty' -H 'sec-fetch-mode: cors' -H 'sec-fetch-site: same-site' --user-agent "${UA_BROWSER}")
-    if [ -z "$tmpresult3" ]; then
-        echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}Failed (Network Connection 2)${Font_Suffix}\n"
-        return
-    fi
-    # 取 accountID / playerID / videoID / videoRefID
-    local accountID=$(echo "$tmpresult3" | grep -woP '"accountID"\s{0,}:\s{0,}"\K[^"]+')
-    local playerID=$(echo "$tmpresult3" | grep -woP '"playerID"\s{0,}:\s{0,}"\K[^"]+')
-    local videoID=$(echo "$tmpresult3" | grep -woP '"videoID"\s{0,}:\s{0,}"\K[^"]+')
-    local videoRefID=$(echo "$tmpresult3" | grep -woP '"videoRefID"\s{0,}:\s{0,}"\K[^"]+' | head -n 1)
-    # 取得 brightcove 播放器信息
-    local tmpresult4=$(curl ${CURL_DEFAULT_OPTS} -s "https://players.brightcove.net/${accountID}/${playerID}_default/index.min.js" -H 'Referer: https://tver.jp/' -H 'Sec-Fetch-Dest: script' -H 'Sec-Fetch-Mode: no-cors' -H 'Sec-Fetch-Site: cross-site' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' --user-agent "${UA_BROWSER}")
-    if [ -z "$tmpresult4" ]; then
-        echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}Failed (Network Connection 3)${Font_Suffix}\n"
-        return
-    fi
-    # 取 policy_key
-    local policyKey=$(echo "$tmpresult4" | sed 's/.*policyKey:"//' | awk -F'"' '{print $1}')
-
-    if [ -z "${videoRefID}" ]; then
-        # 取 deliveryConfigId
-        local deliveryConfigId=$(echo "$tmpresult4" | sed 's/.*deliveryConfigId:"//' | awk -F'"' '{print $1}')
-        # 最终检查
-        local tmpresult5=$(curl ${CURL_DEFAULT_OPTS} -s "https://edge.api.brightcove.com/playback/v1/accounts/${accountID}/videos/${videoID}?config_id=${deliveryConfigId}" -H "accept: application/json;pk=${policyKey}" -H 'origin: https://tver.jp' -H 'referer: https://tver.jp/' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: empty' -H 'sec-fetch-mode: cors' -H 'sec-fetch-site: cross-site' --user-agent "${UA_BROWSER}")
     else
-        # 最终检查
-        local tmpresult5=$(curl ${CURL_DEFAULT_OPTS} -s "https://edge.api.brightcove.com/playback/v1/accounts/${accountID}/videos/ref%3A${videoRefID}" -H "accept: application/json;pk=${policyKey}" -H 'origin: https://tver.jp' -H 'referer: https://tver.jp/' -H 'accept-language: en-US,en;q=0.9' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: empty' -H 'sec-fetch-mode: cors' -H 'sec-fetch-site: cross-site' --user-agent "${UA_BROWSER}")
+        echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}Unknown (Code: $tmpresult)${Font_Suffix}\n"
     fi
-
-    if [ -z "$tmpresult5" ]; then
-        echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}Failed (Network Connection 4)${Font_Suffix}\n"
-        return
-    fi
-    local result=$(echo "$tmpresult5" | grep -woP '"error_subcode"\s{0,}:\s{0,}"\K[^"]+')
-    case "$result" in
-        'CLIENT_GEO') echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}No${Font_Suffix}\n" ;;
-        '') echo -n -e "\r TVer:\t\t\t\t\t${Font_Green}Yes${Font_Suffix}\n" ;;
-        *) echo -n -e "\r TVer:\t\t\t\t\t${Font_Red}Failed (Error: ${result})${Font_Suffix}\n" ;;
-    esac
 }
 
 function MediaUnlockTest_HamiVideo() {
@@ -4945,22 +4892,10 @@ function MediaUnlockTest_RakutenTVJP() {
     if [ -z "$isBlocked" ] && [ -z "$isOK" ]; then
         echo -n -e "\r Rakuten TV JP:\t\t\t\t${Font_Red}Failed (Error: PAGE ERROR)${Font_Suffix}\n"
         return
-    fi
-
-    local tmpresult1=$(curl ${CURL_DEFAULT_OPTS} -s 'https://webapi.nba.rakuten.co.jp/api/v1/system/geofilter?os_type=web&os_version=2.38.13' -H 'accept: application/json, text/plain, */*' -H 'accept-language: ja' -H 'origin: https://nba.rakuten.co.jp' -H 'referer: https://nba.rakuten.co.jp/' -H "sec-ch-ua: ${UA_SEC_CH_UA}" -H 'sec-ch-ua-mobile: ?0' -H 'sec-ch-ua-platform: "Windows"' -H 'sec-fetch-dest: empty' -H 'sec-fetch-mode: cors' -H 'sec-fetch-site: same-site' --user-agent "${UA_BROWSER}")
-    if [ -z "$tmpresult" ]; then
-        echo -n -e "\r Rakuten TV JP:\t\t\t\t${Font_Red}Failed (Network Connection 1)${Font_Suffix}\n"
+    else
+        echo -n -e "\r Rakuten TV JP:\t\t\t\t${Font_Green}Yes${Font_Suffix}\n"
         return
     fi
-
-    local isDomestic=$(echo "$tmpresult1" | grep -woP '"is_domestic"\s{0,}:\s{0,}\K(false|true)')
-
-    case "$isDomestic" in
-        'false') echo -n -e "\r Rakuten TV JP:\t\t\t\t${Font_Yellow}No (NBA Unavailable)${Font_Suffix}\n" ;;
-        'true') echo -n -e "\r Rakuten TV JP:\t\t\t\t${Font_Green}Yes${Font_Suffix}\n" ;;
-        '') echo -n -e "\r Rakuten TV JP:\t\t\t\t${Font_Red}Failed (Error: PAGE ERROR 1)${Font_Suffix}\n" ;;
-        *) echo -n -e "\r Rakuten TV JP:\t\t\t\t${Font_Red}Failed (Error: $result)${Font_Suffix}\n" ;;
-    esac
 }
 
 function MediaUnlockTest_AMCPlus() {
