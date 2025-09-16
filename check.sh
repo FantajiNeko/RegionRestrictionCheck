@@ -4591,7 +4591,7 @@ function WebTest_MetaAI() {
     fi
 
     local isBlocked=$(echo "$tmpresult" | grep -i 'AbraGeoBlockedErrorRoot')
-    local isOK=$(echo "$tmpresult" | grep -i 'AbraHomeRoot.react')
+    local isOK=$(echo "$tmpresult" | grep -i 'KadabraRootContainer')
 
     if [ -z "$isBlocked" ] && [ -z "$isOK" ]; then
         echo -n -e "\r Meta AI:\t\t\t\t${Font_Red}Failed (Error: PAGE ERROR)${Font_Suffix}\n"
@@ -5991,7 +5991,7 @@ function showGoodbye() {
         echo -e ''
         bash <(curl ${CURL_DEFAULT_OPTS} -s https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/reference/AD/AD1)
         echo -e ''
-        bash <(curl ${CURL_DEFAULT_OPTS} -s https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/reference/AD/ADBW)
+        bash <(curl ${CURL_DEFAULT_OPTS} -s https://raw.githubusercontent.com/lmc999/RegionRestrictionCheck/main/reference/AD/AD2)
     fi
 }
 
