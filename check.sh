@@ -1527,7 +1527,7 @@ function MediaUnlockTest_Niconico() {
     fi
 
     local isBlocked=$(echo "$tmpresult" | grep '同じ地域')
-    local isJapanOnly=$(echo "$tmpresult3" | grep 'notAllowedCountry')
+    local isJapanOnly=$(echo "$tmpresult3" | grep '&quot;isCountryRestrictionTarget&quot;:true')
 
     if [ -z "$isBlocked" ] && [ -z "$isJapanOnly" ]; then
         echo -n -e "\r Niconico:\t\t\t\t${Font_Green}Yes (LiveID: $liveID)${Font_Suffix}\n"
