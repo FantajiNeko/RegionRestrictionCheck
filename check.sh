@@ -538,6 +538,38 @@ function GameTest_Steam() {
     echo -n -e "\r Steam Currency:\t\t\t${Font_Green}${result}${Font_Suffix}\n"
 }
 
+# 流媒体解锁测试-TikTok
+function MediaUnlockTest_TikTok() {
+    if [ "${USE_IPV6}" == 1 ]; then
+        echo -n -e "\r TikTok:\t\t\t\t${Font_Red}IPv6 Is Not Currently Supported${Font_Suffix}\n"
+        return
+    fi
+    local result=$(curl ${CURL_DEFAULT_OPTS} --user-agent "${UA_BROWSER}" -Ls --output /dev/null -w %{url_effective} "https://www.tiktok.com/" 2>&1)
+    local result1=$(curl ${CURL_DEFAULT_OPTS} --user-agent "${UA_BROWSER}" -Ls -w %{url_effective} -X POST "https://www.tiktok.com/passport/web/store_region/" 2>&1)
+    if [[ "$result" == "curl"* ]]; then
+        echo -n -e "\r TikTok:\t\t\t\t${Font_Red}Failed (Network Connection)${Font_Suffix}\n"
+        return
+    elif [[ "$result1" == *"/hk/notfound" ]]; then
+        echo -n -e "\r TikTok:\t\t\t\t${Font_Red}No (Region: HK)${Font_Suffix}\n"
+        return
+    fi
+    local region="$(echo "${result1}" | sed -n 's/.*"store_region":"\([^"]*\)".*/\1/p')"
+    if [[ "$result" == *"/about" ]] || [[ "$result" == *"/status"* ]] || [[ "$result" == *"landing"* ]]; then
+        if [[ "$region" == "cn" ]]; then
+            echo -n -e "\r TikTok:\t\t\t\t${Font_Yellow}Provided by Douyin${Font_Suffix}\n"
+            return
+        else
+            echo -n -e "\r TikTok:\t\t\t\t${Font_Red}No (Region: ${region^^})${Font_Suffix}\n"
+            return
+        fi
+    else
+        echo -n -e "\r TikTok:\t\t\t\t${Font_Green}Yes (Region: ${region^^})${Font_Suffix}\n"
+        return
+    fi
+
+    echo -n -e "\r TikTok:\t\t\t\t${Font_Red}Failed${Font_Suffix}\n"
+}
+
 # 流媒体解锁测试-动画疯
 function MediaUnlockTest_BahamutAnime() {
     if [ "${USE_IPV6}" == 1 ]; then
@@ -4951,13 +4983,14 @@ function Global_UnlockTest() {
         MediaUnlockTest_Netflix &
         MediaUnlockTest_YouTube_Premium &
         MediaUnlockTest_PrimeVideo &
+        MediaUnlockTest_TikTok &
         MediaUnlockTest_TVBAnywhere &
         MediaUnlockTest_Spotify &
         RegionTest_oneTrust &
-        RegionTest_iQYI &
+        RegionTest_iQYI & 
     )
     wait
-    local array=("Dazn:" "Disney+:" "Netflix:" "YouTube Premium:" "Amazon Prime Video:" "TVBAnywhere+:" "Spotify Registration:" "OneTrust Region:" "iQyi Oversea Region:")
+    local array=("Dazn:" "Disney+:" "Netflix:" "YouTube Premium:" "Amazon Prime Video:" "TikTok:" "TVBAnywhere+:" "Spotify Registration:" "OneTrust Region:" "iQyi Oversea Region:")
     echo_result ${result} ${array}
     local result=$(
         RegionTest_Bing &
