@@ -917,6 +917,11 @@ function MediaUnlockTest_Dazn() {
         return
     fi
 
+    if echo "$tmpresult" | grep -qi "Forbidden"; then
+        echo -n -e "\r Dazn:\t\t\t\t\t${Font_Red}IP Banned by Dazn${Font_Suffix}\n"
+        return
+    fi
+
     local result=$(echo "$tmpresult" | grep -woP '"isAllowed"\s{0,}:\s{0,}\K(false|true)')
     local region=$(echo "$tmpresult" | grep -woP '"GeolocatedCountry"\s{0,}:\s{0,}"\K[^"]+' | tr a-z A-Z)
     case "$result" in
